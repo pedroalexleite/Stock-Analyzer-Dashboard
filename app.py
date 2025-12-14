@@ -1,21 +1,3 @@
-#HOW TO EDIT CONFIGURATIONS
-#> mkdir .streamlit
-#> cd .streamlit
-#> open config.toml
-
-#MY CONFIGURATIONS
-#[theme]
-#primaryColor = "#ff9500"
-#backgroundColor = "#1d1d1d"
-#secondaryBackgroundColor = "#1d1d1d"
-#textColor = "#fafafa"
-#font = "sans serif"
-
-#RUN APP
-#> streamlit run app.py
-
-#-------------------------------------------------------------------------------------------------#
-
 #PACKAGES
 import streamlit as st
 import yfinance as yf
