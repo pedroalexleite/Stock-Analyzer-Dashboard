@@ -38,6 +38,14 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+st.markdown("""
+    <style>
+    html, body, [class*="css"] {
+        zoom: 0.75;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 #SENTIMENT AUX
 REDDIT_CONFIG = {
     'client_id': st.secrets["reddit"]["client_id"],
