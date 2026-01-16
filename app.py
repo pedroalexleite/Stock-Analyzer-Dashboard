@@ -17,6 +17,7 @@ import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
+
 try:
     nltk.data.find('tokenizers/punkt')
 except LookupError:
@@ -38,13 +39,46 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+#CSS AUX
+st.markdown("""
+<style>
+/* Target dropdown menu items specifically */
+ul[role="listbox"] {
+    font-size: 14px !important;
+}
+ul[role="listbox"] li {
+    font-size: 14px !important;
+}
+ul[role="listbox"] li div {
+    font-size: 14px !important;
+}
+div[data-baseweb="popover"] * {
+    font-size: 14px !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+st.markdown("""
+<style>
+/* Reduce spacing between sections */
+.element-container {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+}
+div[data-testid="stVerticalBlock"] > div {
+    gap: 0.5rem !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
 #SENTIMENT AUX
 REDDIT_CONFIG = {
-    'client_id': st.secrets["reddit"]["client_id"],
-    'client_secret': st.secrets["reddit"]["client_secret"],
-    'user_agent': st.secrets["reddit"]["user_agent"]
+'client_id': st.secrets["reddit"]["client_id"],
+'client_secret': st.secrets["reddit"]["client_secret"],
+'user_agent': st.secrets["reddit"]["user_agent"]
 }
 
+#FUNCTIONS AUX
 @st.cache_data(ttl=3600)
 def scrape_reddit(ticker, subreddit_name, time_filter="year"):
     try:
@@ -175,49 +209,54 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-st.markdown("<h1 style='text-align: center;'>Stock Analyzer Dashboard</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; font-size: 30px; margin-bottom: 0px !important; line-height: 1 !important;'>Stock Analyzer Dashboard</h1>", unsafe_allow_html=True)
 st.markdown("""
 <style>
-    /* Reduce space between title and search */
     .main .block-container {
-        padding-top: 0rem !important;
+        padding-top: 0.25rem !important;
         padding-bottom: 0rem !important;
         max-width: 100%;
     }
     h1 {
-        margin-bottom: 0rem !important;
+        margin-bottom: 0px !important;
         margin-top: 0rem !important;
-        padding-top: 0.5rem !important;
+        padding-top: 0rem !important;
+        padding-bottom: 0rem !important;
+        line-height: 1 !important;
     }
 
     input[type="text"] {
         text-align: center;
-        font-size: 20px !important;
+        font-size: 15px !important;
+        border: 1px solid #2C2E35 !important;
+        border-radius: 8px !important;
     }
 
-    /* Remove extra spacing */
     .element-container {
         margin-bottom: 0 !important;
+        padding-bottom: 0 !important;
     }
 
-    /* Remove all default Streamlit spacing */
     .stMarkdown {
         margin-bottom: 0 !important;
+        padding-bottom: 0 !important;
     }
 
     div[data-testid="column"] {
         padding-top: 0 !important;
+        margin-top: -30px !important;
     }
 </style>
 """, unsafe_allow_html=True)
-col1, col2, col3 = st.columns([1.5, 1, 1.5])
+
+col1, col2, col3 = st.columns([1.6, 1, 1.6])
 with col2:
     ticker = st.text_input("", placeholder="Enter stock ticker (e.g. AAPL, MSFT, TSLA, etc)", label_visibility="collapsed")
 
 #AFTER SEARCH
 if ticker:
     try:
-        st.markdown('<div style="margin-top: -50px;"></div>', unsafe_allow_html=True)
+        st.markdown('<div style="margin-top: -60px;"></div>', unsafe_allow_html=True)
 
         prices = yf.download(ticker, period="max", interval="1d", progress=False)["Close"]
         if prices.empty:
@@ -320,39 +359,43 @@ if ticker:
                                 dict(count=1, label="1Y", step="year", stepmode="backward"),
                                 dict(count=1, label="1M", step="month", stepmode="backward"),
                                 dict(count=7, label="1W", step="day", stepmode="backward")
-                            ])
-                        )
+                            ]),
+                            font=dict(size=9)
+                        ),
+                        tickfont=dict(size=9)
                     )
                     fig.update_layout(
                         xaxis_title=None,
                         yaxis_title=None,
-                        height=500,
-                        margin=dict(t=50, b=0, l=0, r=0)
+                        height=375,
+                        margin=dict(t=37, b=0, l=0, r=0),
+                        font=dict(size=10)
                     )
+                    fig.update_yaxes(tickfont=dict(size=9))
                     st.plotly_chart(fig, use_container_width=True)
 
                 #DESCRIPTION
                 with col_desc:
-                    st.markdown('<div style="margin-top: 35px;"></div>', unsafe_allow_html=True)
-                    st.markdown(f"**Name:** {info.get('shortName', 'N/A')}")
-                    st.markdown(f"**Exchange:** {info.get('exchange', 'N/A')}")
-                    st.markdown(f"**Sector:** {info.get('sector', 'N/A')}")
-                    st.markdown(f"**Industry:** {info.get('industry', 'N/A')}")
-                    st.markdown(f"**Country:** {info.get('country', 'N/A')}")
-                    st.markdown(f"**City:** {info.get('city', 'N/A')}, {info.get('state', 'N/A')}")
-                    st.markdown(f"**CEO:** {ceo_name}")
-                    st.markdown(f"**Employees:** {human_format_no_dollar(info.get('fullTimeEmployees'))}")
-                    st.markdown(f"**Price:** ${round(info.get('currentPrice', 0), 2)}")
-                    st.markdown(f"**Target:** ${round(info.get('targetMeanPrice', 0), 2)}")
-                    st.markdown(f"**Cap:** {human_format(info.get('marketCap'))}")
-                    st.markdown(f"**Value:** {human_format(info.get('enterpriseValue'))}")
+                    st.markdown('<div style="margin-top: 26px;"></div>', unsafe_allow_html=True)
+                    st.markdown(f"<p style='font-size: 11.5px; margin: 5.7px 0;'><strong>Name:</strong> {info.get('shortName', 'N/A')}</p>", unsafe_allow_html=True)
+                    st.markdown(f"<p style='font-size: 11.5px; margin: 5.7px 0;'><strong>Exchange:</strong> {info.get('exchange', 'N/A')}</p>", unsafe_allow_html=True)
+                    st.markdown(f"<p style='font-size: 11.5px; margin: 5.7px 0;'><strong>Sector:</strong> {info.get('sector', 'N/A')}</p>", unsafe_allow_html=True)
+                    st.markdown(f"<p style='font-size: 11.5px; margin: 5.7px 0;'><strong>Industry:</strong> {info.get('industry', 'N/A')}</p>", unsafe_allow_html=True)
+                    st.markdown(f"<p style='font-size: 11.5px; margin: 5.7px 0;'><strong>Country:</strong> {info.get('country', 'N/A')}</p>", unsafe_allow_html=True)
+                    st.markdown(f"<p style='font-size: 11.5px; margin: 5.7px 0;'><strong>City:</strong> {info.get('city', 'N/A')}, {info.get('state', 'N/A')}</p>", unsafe_allow_html=True)
+                    st.markdown(f"<p style='font-size: 11.5px; margin: 5.7px 0;'><strong>CEO:</strong> {ceo_name}</p>", unsafe_allow_html=True)
+                    st.markdown(f"<p style='font-size: 11.5px; margin: 5.7px 0;'><strong>Employees:</strong> {human_format_no_dollar(info.get('fullTimeEmployees'))}</p>", unsafe_allow_html=True)
+                    st.markdown(f"<p style='font-size: 11.5px; margin: 5.7px 0;'><strong>Price:</strong> ${round(info.get('currentPrice', 0), 2)}</p>", unsafe_allow_html=True)
+                    st.markdown(f"<p style='font-size: 11.5px; margin: 5.7px 0;'><strong>Target:</strong> ${round(info.get('targetMeanPrice', 0), 2)}</p>", unsafe_allow_html=True)
+                    st.markdown(f"<p style='font-size: 11.5px; margin: 5.7px 0;'><strong>Cap:</strong> {human_format(info.get('marketCap'))}</p>", unsafe_allow_html=True)
+                    st.markdown(f"<p style='font-size: 11.5px; margin: 5.7px 0;'><strong>Value:</strong> {human_format(info.get('enterpriseValue'))}</p>", unsafe_allow_html=True)
 
-                st.markdown('<div style="margin-top: 30px;"></div>', unsafe_allow_html=True)
+                st.markdown('<div style="margin-top: 22px;"></div>', unsafe_allow_html=True)
                 fund_risk_col1, fund_risk_col2 = st.columns(2)
 
                 #FUNDAMENTAL
                 with fund_risk_col1:
-                    st.markdown("<h4 style='text-align: center;'>Fundamental</h4>", unsafe_allow_html=True)
+                    st.markdown("<h4 style='text-align: center; font-size: 20px; margin-bottom: 0px;'>Fundamental</h4>", unsafe_allow_html=True)
 
                     per = info.get('trailingPE', 'N/A')
                     pbr = info.get('priceToBook', 'N/A')
@@ -378,14 +421,14 @@ if ticker:
                         .fundamental-table {{
                             width: 100%;
                             border-collapse: collapse;
-                            margin-top: 20px;
-                            font-size: 14px;
+                            margin-top: 15px;
+                            font-size: 10.5px;
                             font-family: sans-serif;
                         }}
                         .fundamental-table th {{
                             background-color: #1d1d1d;
                             color: white;
-                            padding: 12px;
+                            padding: 9px;
                             text-align: center;
                             border: 2px solid #2C2E35;
                             font-weight: bold;
@@ -393,7 +436,7 @@ if ticker:
                         .fundamental-table td {{
                             background-color: #1d1d1d;
                             color: white;
-                            padding: 12px;
+                            padding: 9px;
                             text-align: center;
                             border: 2px solid #2C2E35;
                         }}
@@ -423,9 +466,49 @@ if ticker:
 
                     #RISK
                     with fund_risk_col2:
-                        st.markdown("<h4 style='text-align: center; margin-bottom: 0px;'>Risk</h4>", unsafe_allow_html=True)
+                        st.markdown("<h4 style='text-align: center; font-size: 20px; margin-bottom: -33px;'>Risk</h4>", unsafe_allow_html=True)
 
-                        col_left, col_center, col_right = st.columns([1.75, 2, 1.75])
+                        st.markdown("""
+                            <style>
+                            /* 1. Center the component and manage vertical spacing */
+                            div[data-testid="stSegmentedControl"] {
+                                margin-top: 0px !important;
+                                margin-bottom: -10px !important;
+                                display: flex;
+                                justify-content: center;
+                                width: 100%;
+                            }
+
+                            /* 2. Target the button group to stay horizontal and centered */
+                            div[data-testid="stSegmentedControl"] > div[role="radiogroup"] {
+                                display: flex !important;
+                                flex-direction: row !important;
+                                justify-content: center !important;
+                                width: auto !important;
+                                gap: 0px !important;
+                            }
+
+                            /* 3. Button sizing - Short height, but wide enough for text */
+                            div[data-testid="stSegmentedControl"] button {
+                                min-height: 22px !important;
+                                height: 22px !important;
+                                padding: 0px 12px !important; /* Horizontal padding for text breathing room */
+                                border-radius: 4px !important;
+                                background-color: transparent !important;
+                            }
+
+                            /* 4. Fix cropping: Force text to stay on one line and use small font */
+                            div[data-testid="stSegmentedControl"] button p {
+                                font-size: 10px !important;
+                                white-space: nowrap !important; /* Prevents "M..." cropping */
+                                overflow: visible !important;
+                                line-height: 1 !important;
+                                margin: 0px !important;
+                            }
+                            </style>
+                        """, unsafe_allow_html=True)
+
+                        col_left, col_center, col_right = st.columns([1.2, 2.6, 1.2])
                         with col_center:
                             risk_type = st.segmented_control(
                                 "Select Risk Type",
@@ -504,16 +587,16 @@ if ticker:
                             fig_risk.add_trace(go.Indicator(
                                 mode="gauge",
                                 value=volatility_value,
-                                domain={'x': [0, 0.48], 'y': [0.3, 0.95]},
+                                domain={'x': [0.02, 0.48], 'y': [0.32, 0.92]},
                                 gauge={
-                                    'axis': {'range': [0, 100], 'tickwidth': 1, 'tickcolor': "white", 'tickfont': {'size': 9}},
+                                    'axis': {'range': [0, 100], 'tickwidth': 1, 'tickcolor': "white", 'tickfont': {'size': 6.5}},
                                     'bar': {'color': "rgba(0,0,0,0)", 'thickness': 0},
                                     'bgcolor': "rgba(0,0,0,0)",
-                                    'borderwidth': 2,
+                                    'borderwidth': 1.8,
                                     'bordercolor': "#2C2E36",
                                     'threshold': {
-                                        'line': {'color': "orange", 'width': 4},
-                                        'thickness': 0.75,
+                                        'line': {'color': "orange", 'width': 3.5},
+                                        'thickness': 0.7,
                                         'value': volatility_value
                                     }
                                 }
@@ -522,16 +605,16 @@ if ticker:
                             fig_risk.add_trace(go.Indicator(
                                 mode="gauge",
                                 value=beta_normalized,
-                                domain={'x': [0.52, 1], 'y': [0.3, 0.95]},
+                                domain={'x': [0.52, 0.98], 'y': [0.32, 0.92]},
                                 gauge={
-                                    'axis': {'range': [0, 100], 'tickwidth': 1, 'tickcolor': "white", 'tickfont': {'size': 9}},
+                                    'axis': {'range': [0, 100], 'tickwidth': 1, 'tickcolor': "white", 'tickfont': {'size': 6.5}},
                                     'bar': {'color': "rgba(0,0,0,0)", 'thickness': 0},
                                     'bgcolor': "rgba(0,0,0,0)",
-                                    'borderwidth': 2,
+                                    'borderwidth': 1.8,
                                     'bordercolor': "#2C2E36",
                                     'threshold': {
-                                        'line': {'color': "orange", 'width': 4},
-                                        'thickness': 0.75,
+                                        'line': {'color': "orange", 'width': 3.5},
+                                        'thickness': 0.7,
                                         'value': beta_normalized
                                     }
                                 }
@@ -539,25 +622,25 @@ if ticker:
 
                             fig_risk.add_annotation(
                                 text="Volatility",
-                                x=0.24, y=0.25,
+                                x=0.25, y=0.26,
                                 xref="paper", yref="paper",
                                 showarrow=False,
-                                font=dict(size=15, color="white"),
+                                font=dict(size=10, color="white"),
                                 xanchor='center'
                             )
 
                             fig_risk.add_annotation(
                                 text="Beta",
-                                x=0.76, y=0.25,
+                                x=0.75, y=0.26,
                                 xref="paper", yref="paper",
                                 showarrow=False,
-                                font=dict(size=15, color="white"),
+                                font=dict(size=10, color="white"),
                                 xanchor='center'
                             )
 
                             fig_risk.update_layout(
-                                height=200,
-                                margin=dict(l=0, r=0, t=10, b=40),
+                                height=140,
+                                margin=dict(l=0, r=0, t=7, b=27),
                                 paper_bgcolor='rgba(0,0,0,0)'
                             )
                             st.plotly_chart(fig_risk, use_container_width=True)
@@ -568,16 +651,16 @@ if ticker:
                             fig_risk.add_trace(go.Indicator(
                                 mode="gauge",
                                 value=sortino_normalized,
-                                domain={'x': [0, 0.48], 'y': [0.3, 0.95]},
+                                domain={'x': [0.02, 0.48], 'y': [0.32, 0.92]},
                                 gauge={
-                                    'axis': {'range': [0, 100], 'tickwidth': 1, 'tickcolor': "white", 'tickfont': {'size': 9}},
+                                    'axis': {'range': [0, 100], 'tickwidth': 1, 'tickcolor': "white", 'tickfont': {'size': 6.5}},
                                     'bar': {'color': "rgba(0,0,0,0)", 'thickness': 0},
                                     'bgcolor': "rgba(0,0,0,0)",
-                                    'borderwidth': 2,
+                                    'borderwidth': 1.8,
                                     'bordercolor': "#2C2E36",
                                     'threshold': {
-                                        'line': {'color': "orange", 'width': 4},
-                                        'thickness': 0.75,
+                                        'line': {'color': "orange", 'width': 3.5},
+                                        'thickness': 0.7,
                                         'value': sortino_normalized
                                     }
                                 }
@@ -586,16 +669,16 @@ if ticker:
                             fig_risk.add_trace(go.Indicator(
                                 mode="gauge",
                                 value=max_drawdown,
-                                domain={'x': [0.52, 1], 'y': [0.3, 0.95]},
+                                domain={'x': [0.52, 0.98], 'y': [0.32, 0.92]},
                                 gauge={
-                                    'axis': {'range': [0, 100], 'tickwidth': 1, 'tickcolor': "white", 'tickfont': {'size': 9}},
+                                    'axis': {'range': [0, 100], 'tickwidth': 1, 'tickcolor': "white", 'tickfont': {'size': 6.5}},
                                     'bar': {'color': "rgba(0,0,0,0)", 'thickness': 0},
                                     'bgcolor': "rgba(0,0,0,0)",
-                                    'borderwidth': 2,
+                                    'borderwidth': 1.8,
                                     'bordercolor': "#2C2E36",
                                     'threshold': {
-                                        'line': {'color': "orange", 'width': 4},
-                                        'thickness': 0.75,
+                                        'line': {'color': "orange", 'width': 3.5},
+                                        'thickness': 0.7,
                                         'value': max_drawdown
                                     }
                                 }
@@ -606,7 +689,7 @@ if ticker:
                                 x=0.24, y=0.25,
                                 xref="paper", yref="paper",
                                 showarrow=False,
-                                font=dict(size=15, color="white"),
+                                font=dict(size=11, color="white"),
                                 xanchor='center'
                             )
 
@@ -615,13 +698,13 @@ if ticker:
                                 x=0.76, y=0.25,
                                 xref="paper", yref="paper",
                                 showarrow=False,
-                                font=dict(size=15, color="white"),
+                                font=dict(size=11, color="white"),
                                 xanchor='center'
                             )
 
                             fig_risk.update_layout(
-                                height=200,
-                                margin=dict(l=0, r=0, t=10, b=40),
+                                height=150,
+                                margin=dict(l=0, r=0, t=7, b=30),
                                 paper_bgcolor='rgba(0,0,0,0)'
                             )
                             st.plotly_chart(fig_risk, use_container_width=True)
@@ -629,17 +712,28 @@ if ticker:
             #RIGHT HALF
             with right_col:
                 #SENTIMENTAL
-                st.markdown("<h4 style='text-align: center; margin-bottom: 0px;'>Sentimental</h4>", unsafe_allow_html=True)
+                st.markdown("<h4 style='text-align: center; font-size: 20px; margin-bottom: -10px;'>Sentimental</h4>", unsafe_allow_html=True)
 
                 st.markdown("""
                 <style>
                 div[data-testid="stSelectbox"] {
-                    margin-top: -20px !important;
+                    margin-top: -25px !important;
+                }
+                div[data-testid="stSelectbox"] label {
+                    font-size: 11px !important;
+                }
+                /* Selected option - make bigger */
+                div[data-testid="stSelectbox"] > div > div {
+                    font-size: 14px !important;
+                }
+                /* Make dropdown smaller width */
+                div[data-testid="stSelectbox"] > div {
+                    min-width: 140px !important;
                 }
                 </style>
                 """, unsafe_allow_html=True)
 
-                col_left, col_center, col_right = st.columns([36, 15, 36])
+                col_left, col_center, col_right = st.columns([33, 20, 33])
                 with col_center:
                     sentiment_source = st.selectbox(
                         "Select Sentiment Source",
@@ -675,29 +769,29 @@ if ticker:
                         orientation='h',
                         marker=dict(
                             color='rgba(0,0,0,0)',
-                            line=dict(color='#ff9500', width=2)
+                            line=dict(color='#ff9500', width=1.5)
                         ),
                         text=sentiment_values,
                         textposition='outside',
-                        textfont=dict(size=18, color='white'),
-                        width=0.4
+                        textfont=dict(size=12, color='white'),
+                        width=0.5
                     ))
 
                     fig_sentiment.update_layout(
-                        height=200,
-                        margin=dict(l=50, r=50, t=10, b=10),
+                        height=150,
+                        margin=dict(l=37, r=37, t=7, b=7),
                         paper_bgcolor='rgba(0,0,0,0)',
                         plot_bgcolor='rgba(0,0,0,0)',
                         xaxis=dict(
                             title=None,
                             range=[0, 100],
-                            tickfont=dict(size=10, color='white'),
+                            tickfont=dict(size=7.5, color='white'),
                             showgrid=False,
                             showticklabels=False
                         ),
                         yaxis=dict(
                             title=None,
-                            tickfont=dict(size=13, color='white'),
+                            tickfont=dict(size=12, color='white'),
                             showgrid=False
                         ),
                         showlegend=False
@@ -726,7 +820,7 @@ if ticker:
 
                         max_weight = max([w[1] for w in words_data]) if words_data else 1
                         normalized_weight = weight / max_weight if max_weight > 0 else 0.5
-                        font_size = 10 + (normalized_weight * 25)
+                        font_size = 7.5 + (normalized_weight * 18.75)
 
                         fig_wordcloud.add_annotation(
                             text=word.upper(),
@@ -745,8 +839,8 @@ if ticker:
                         )
 
                     fig_wordcloud.update_layout(
-                        height=200,
-                        margin=dict(l=0, r=0, t=10, b=10),
+                        height=150,
+                        margin=dict(l=0, r=0, t=7, b=7),
                         paper_bgcolor='#1d1d1d',
                         plot_bgcolor='#1d1d1d',
                         xaxis=dict(
@@ -766,25 +860,31 @@ if ticker:
                     st.plotly_chart(fig_wordcloud, use_container_width=True)
 
                 #TECHNICAL
-                st.markdown("<h4 style='text-align: center; margin-top: 20px;'>Technical</h4>", unsafe_allow_html=True)
+                st.markdown("<h4 style='text-align: center; font-size: 20px; margin-top: 10px; margin-bottom: 5px;'>Technical</h4>", unsafe_allow_html=True)
 
                 st.markdown("""
                 <style>
                 div[data-testid="stDateInput"] input {
-                    font-size: 16px !important;
+                    font-size: 13px !important;
+                    padding: 4px 8px !important;
                 }
                 div[data-testid="stDateInput"] label {
-                    font-size: 16px !important;
-                    font-weight: 700 !important;
+                    font-size: 14px !important;
+                    font-weight: 600 !important;
                     text-align: center !important;
                     display: block !important;
+                    margin-bottom: 2px !important;
                 }
                 div[data-testid="stDateInput"] {
-                    margin-bottom: 10px !important;
+                    margin-bottom: 4px !important;
                 }
                 div[data-testid="stDateInput"] label p {
-                    font-size: 16px !important;
-                    font-weight: 700 !important;
+                    font-size: 14px !important;
+                    font-weight: 600 !important;
+                    margin-bottom: 2px !important;
+                }
+                div[data-testid="stDateInput"] > div {
+                    min-height: 28px !important;
                 }
                 </style>
                 """, unsafe_allow_html=True)
@@ -799,14 +899,24 @@ if ticker:
                     tech_start_date = st.date_input("Start", value=one_year_ago, key="tech_start", label_visibility="visible")
                     tech_end_date = st.date_input("End", value=today, key="tech_end", label_visibility="visible")
 
-                    st.markdown("<p style='text-align: center; font-size: 16px; font-weight: bold; margin-top: 5px; margin-bottom: 10px;'>Indicators</p>", unsafe_allow_html=True)
+                    st.markdown("<p style='text-align: center; font-size: 14px; font-weight: 600; margin-top: 4px; margin-bottom: 4px;'>Indicators</p>", unsafe_allow_html=True)
 
                     if 'tech_indicators_list' not in st.session_state:
-                        st.session_state.tech_indicators_list = ["SMA (20)"]
+                        st.session_state.tech_indicators_list = ["SMA20"]
 
                     name_mapping = {
-                        "Bolli Band (10)": "BB (10)",
-                        "Bolli Band (20)": "BB (20)",
+                        "BB (10)": "BB10",
+                        "BB (20)": "BB20",
+                        "SMA (20)": "SMA20",
+                        "SMA (50)": "SMA50",
+                        "SMA (200)": "SMA200",
+                        "EMA (12)": "EMA12",
+                        "EMA (26)": "EMA26",
+                        "EMA (50)": "EMA50",
+                        "RSI (9)": "RSI9",
+                        "RSI (14)": "RSI14",
+                        "ATR (14)": "ATR14",
+                        "ADX (14)": "ADX14",
                         "MACD Hist": "MACD H",
                         "Stoch Osci": "SO",
                         "Will %R": "W%R",
@@ -820,13 +930,13 @@ if ticker:
                     temp_selection = st.multiselect(
                         "Select Indicators:",
                         [
-                            "SMA (20)", "SMA (50)", "SMA (200)",
-                            "EMA (12)", "EMA (26)", "EMA (50)",
-                            "BB (10)", "BB (20)", "VWAP",
-                            "RSI (9)", "RSI (14)",
+                            "SMA20", "SMA50", "SMA200",
+                            "EMA12", "EMA26", "EMA50",
+                            "BB10", "BB20", "VWAP",
+                            "RSI9", "RSI14",
                             "MACD", "MACD H",
                             "SO", "W%R",
-                            "ATR (14)", "ADX (14)",
+                            "ATR14", "ADX14",
                             "P SAR", "IC"
                         ],
                         default=st.session_state.tech_indicators_list,
@@ -834,7 +944,7 @@ if ticker:
                         label_visibility="collapsed"
                     )
 
-                    if len(temp_selection) <= 4:
+                    if len(temp_selection) <= 2:
                         tech_indicators = temp_selection
                         st.session_state.tech_indicators_list = temp_selection
                     else:
@@ -863,7 +973,7 @@ if ticker:
 
                             for indicator in tech_indicators:
                                 if indicator.startswith("SMA"):
-                                    period = int(indicator.split("(")[1].split(")")[0])
+                                    period = int(indicator.replace("SMA", ""))
                                     sma = tech_data['Close'].rolling(window=period).mean()
                                     show_legend = "SMA" not in added_indicators
                                     fig_tech.add_trace(go.Scatter(
@@ -878,7 +988,7 @@ if ticker:
                                     added_indicators.add("SMA")
 
                                 elif indicator.startswith("EMA"):
-                                    period = int(indicator.split("(")[1].split(")")[0])
+                                    period = int(indicator.replace("EMA", ""))
                                     ema = tech_data['Close'].ewm(span=period).mean()
                                     show_legend = "EMA" not in added_indicators
                                     fig_tech.add_trace(go.Scatter(
@@ -893,7 +1003,7 @@ if ticker:
                                     added_indicators.add("EMA")
 
                                 elif indicator.startswith("BB"):
-                                    period = int(indicator.split("(")[1].split(")")[0])
+                                    period = int(indicator.replace("BB", ""))
                                     sma = tech_data['Close'].rolling(window=period).mean()
                                     std = tech_data['Close'].rolling(window=period).std()
                                     bb_upper = sma + 2 * std
@@ -924,7 +1034,7 @@ if ticker:
                                     fig_tech.add_trace(go.Scatter(x=tech_data.index, y=vwap, mode='lines', name='VWAP', line=dict(color='#7515F5', width=2)))
 
                                 elif indicator.startswith("RSI"):
-                                    period = int(indicator.split("(")[1].split(")")[0])
+                                    period = int(indicator.replace("RSI", ""))
                                     delta = tech_data['Close'].diff()
                                     gain = (delta.where(delta > 0, 0)).rolling(window=period).mean()
                                     loss = (-delta.where(delta < 0, 0)).rolling(window=period).mean()
@@ -995,7 +1105,7 @@ if ticker:
                                     williams_r_scaled = price_min + ((williams_r + 100) / 100) * (price_max - price_min)
                                     fig_tech.add_trace(go.Scatter(x=tech_data.index, y=williams_r_scaled, mode='lines', name='W%R', line=dict(color='#75FC8E', width=2)))
 
-                                elif indicator == "ATR (14)":
+                                elif indicator == "ATR14":
                                     high_low = tech_data['High'] - tech_data['Low']
                                     high_close = np.abs(tech_data['High'] - tech_data['Close'].shift())
                                     low_close = np.abs(tech_data['Low'] - tech_data['Close'].shift())
@@ -1003,9 +1113,9 @@ if ticker:
                                     atr = tr.rolling(window=14).mean()
                                     price_min = tech_data['Close'].min()
                                     atr_scaled = price_min + atr
-                                    fig_tech.add_trace(go.Scatter(x=tech_data.index, y=atr_scaled, mode='lines', name='ATR (14)', line=dict(color='#75FB4C', width=2)))
+                                    fig_tech.add_trace(go.Scatter(x=tech_data.index, y=atr_scaled, mode='lines', name='ATR14', line=dict(color='#75FB4C', width=2)))
 
-                                elif indicator == "ADX (14)":
+                                elif indicator == "ADX14":
                                     high_diff = tech_data['High'].diff()
                                     low_diff = -tech_data['Low'].diff()
                                     plus_dm = high_diff.where((high_diff > low_diff) & (high_diff > 0), 0)
@@ -1022,7 +1132,7 @@ if ticker:
                                     price_min = tech_data['Close'].min()
                                     price_max = tech_data['Close'].max()
                                     adx_scaled = price_min + (adx / 100) * (price_max - price_min)
-                                    fig_tech.add_trace(go.Scatter(x=tech_data.index, y=adx_scaled, mode='lines', name='ADX (14)', line=dict(color='#A1FC4E', width=2)))
+                                    fig_tech.add_trace(go.Scatter(x=tech_data.index, y=adx_scaled, mode='lines', name='ADX14', line=dict(color='#A1FC4E', width=2)))
 
                                 elif indicator == "P SAR":
                                     sar = tech_data['Close'].copy()
@@ -1078,10 +1188,13 @@ if ticker:
 
                             fig_tech.update_layout(
                                 xaxis_rangeslider_visible=False,
-                                height=375,
-                                margin=dict(l=0, r=0, t=0, b=0),
+                                height=250,
+                                margin=dict(l=0, r=0, t=5, b=5),
                                 xaxis_title=None,
-                                yaxis_title=None
+                                yaxis_title=None,
+                                font=dict(size=9),
+                                xaxis=dict(tickfont=dict(size=8)),
+                                yaxis=dict(tickfont=dict(size=8))
                             )
 
                             st.plotly_chart(fig_tech, use_container_width=True)
@@ -1094,7 +1207,7 @@ if ticker:
                         st.code(traceback.format_exc())
 
             #BOTTOM HALF
-            analysis_col, chat_col = st.columns([1, 1], gap="large")
+            short_col, long_col = st.columns([1, 1], gap="large")
 
             GROQ_API_KEY = st.secrets["groq"]["api_key"]
 
@@ -1184,67 +1297,67 @@ if ticker:
                     tech_indicators_str = "\n".join([f"    - {key.replace('_', ' ').title()}: {value}" for key, value in technical_metrics.items()])
                     analysis_prompt = f"""Analyze the stock {ticker_symbol} based on the following data:
 
-            FUNDAMENTAL DATA:
-            - P/E Ratio: {stock_data.get('per', 'N/A')}
-            - Price to Book: {stock_data.get('pbr', 'N/A')}
-            - Return on Assets: {stock_data.get('roa', 'N/A')}
-            - Net Profit Margin: {stock_data.get('npm', 'N/A')}
-            - Current Ratio: {stock_data.get('icr', 'N/A')}
-            - Free Cash Flow: {stock_data.get('fcf', 'N/A')}
-            - Revenue Growth: {stock_data.get('rgr', 'N/A')}
-            - Earnings Growth: {stock_data.get('egr', 'N/A')}
-            - Current Price: ${stock_data.get('price', 'N/A')}
-            - Target Price: ${stock_data.get('target', 'N/A')}
-            - Market Cap: {stock_data.get('marketCap', 'N/A')}
-            - Sector: {stock_data.get('sector', 'N/A')}
-            - Industry: {stock_data.get('industry', 'N/A')}
+                                        FUNDAMENTAL DATA:
+                                        - P/E Ratio: {stock_data.get('per', 'N/A')}
+                                        - Price to Book: {stock_data.get('pbr', 'N/A')}
+                                        - Return on Assets: {stock_data.get('roa', 'N/A')}
+                                        - Net Profit Margin: {stock_data.get('npm', 'N/A')}
+                                        - Current Ratio: {stock_data.get('icr', 'N/A')}
+                                        - Free Cash Flow: {stock_data.get('fcf', 'N/A')}
+                                        - Revenue Growth: {stock_data.get('rgr', 'N/A')}
+                                        - Earnings Growth: {stock_data.get('egr', 'N/A')}
+                                        - Current Price: ${stock_data.get('price', 'N/A')}
+                                        - Target Price: ${stock_data.get('target', 'N/A')}
+                                        - Market Cap: {stock_data.get('marketCap', 'N/A')}
+                                        - Sector: {stock_data.get('sector', 'N/A')}
+                                        - Industry: {stock_data.get('industry', 'N/A')}
 
-            RISK METRICS:
-            - Volatility: {risk_metrics.get('volatility', 'N/A')}%
-            - Beta: {risk_metrics.get('beta', 'N/A')}
-            - Sortino Ratio: {risk_metrics.get('sortino', 'N/A')}
-            - Max Drawdown: {risk_metrics.get('max_drawdown', 'N/A')}%
+                                        RISK METRICS:
+                                        - Volatility: {risk_metrics.get('volatility', 'N/A')}%
+                                        - Beta: {risk_metrics.get('beta', 'N/A')}
+                                        - Sortino Ratio: {risk_metrics.get('sortino', 'N/A')}
+                                        - Max Drawdown: {risk_metrics.get('max_drawdown', 'N/A')}%
 
-            TECHNICAL INDICATORS:
-            {tech_indicators_str}
+                                        TECHNICAL INDICATORS:
+                                        {tech_indicators_str}
 
-            SENTIMENT DATA (Reddit scores 0-100, where 50 is neutral):
-            - 1 Week: {sentiment_data.get('1W', 'N/A')}
-            - 1 Month: {sentiment_data.get('1M', 'N/A')}
-            - 1 Year: {sentiment_data.get('1Y', 'N/A')}
+                                        SENTIMENT DATA (Reddit scores 0-100, where 50 is neutral):
+                                        - 1 Week: {sentiment_data.get('1W', 'N/A')}
+                                        - 1 Month: {sentiment_data.get('1M', 'N/A')}
+                                        - 1 Year: {sentiment_data.get('1Y', 'N/A')}
 
-            IMPORTANT INSTRUCTIONS:
-            1. Provide a rating from 0-100 that reflects the OVERALL investment potential based on ALL factors above
-            2. Consider how the different metrics interact - don't just average them
-            3. Weight factors appropriately: fundamentals and technicals should be weighted heavily, sentiment moderately
-            4. Each text analysis should be exactly 120-160 words - not shorter, not longer
-            5. Write in plain text ONLY - no markdown formatting, no asterisks, no bold, no italic
-            6. Be specific and reference the actual numbers provided
-            7. Use actual percentages when appropriate and exactly 2 decimal points in all cases
-            8. Make the analysis professional, balanced, and actionable
+                                        IMPORTANT INSTRUCTIONS:
+                                        1. Provide a rating from 0-100 that reflects the OVERALL investment potential based on ALL factors above
+                                        2. Consider how the different metrics interact - don't just average them
+                                        3. Weight factors appropriately: fundamentals and technicals should be weighted heavily, sentiment moderately
+                                        4. Each text analysis should be exactly 90-120 words - not shorter, not longer
+                                        5. Write in plain text ONLY - no markdown formatting, no asterisks, no bold, no italic
+                                        6. Be specific and reference the actual numbers provided
+                                        7. Use actual percentages when appropriate and exactly 2 decimal points in all cases
+                                        8. Make the analysis professional, balanced, and actionable
 
-            Provide a JSON response ONLY (no markdown, no explanation) with this exact structure:
-            {{
-                "rating": <number 0-100 based on comprehensive analysis>,
-                "summary_table": {{
-                    "sentiment": "<Bullish/Bearish/Neutral>",
-                    "fundamental": "<Strong/Weak/Average>",
-                    "short_term": "<Risky/Moderate/Favorable>",
-                    "action": "<Buy/Hold/Sell>",
-                    "sentimental": "<Positive/Negative/Neutral>",
-                    "medium_term": "<Risky/Moderate/Favorable>",
-                    "value": "<Overvalued/Fair/Undervalued>",
-                    "technical": "<Strong/Weak/Neutral>",
-                    "long_term": "<Risky/Moderate/Favorable>"
-                }},
-                "detailed_analysis": {{
-                    "risk": "<Plain text paragraph 120-160 words analyzing volatility, beta, sortino, and max drawdown>",
-                    "fundamental": "<Plain text paragraph 120-160 words analyzing PE, PBR, ROA, NPM, cash flow, and growth metrics>",
-                    "sentimental": "<Plain text paragraph 120-160 words analyzing Reddit sentiment across time periods>",
-                    "technical": "<Plain text paragraph 120-160 words analyzing SMA, EMA, RSI, MACD, Bollinger Bands, ADX, and other technical indicators>",
-                    "overall": "<Plain text paragraph 120-160 words providing comprehensive summary and investment recommendation>"
-                }}
-            }}"""
+                                        Provide a JSON response ONLY (no markdown, no explanation) with this exact structure:
+                                        {{
+                                            "rating": <number 0-100 based on comprehensive analysis>,
+                                            "summary_table": {{
+                                                "sentiment": "<Bullish/Bearish/Neutral>",
+                                                "fundamental": "<Strong/Weak/Average>",
+                                                "short_term": "<Risky/Moderate/Favorable>",
+                                                "action": "<Buy/Hold/Sell>",
+                                                "sentimental": "<Positive/Negative/Neutral>",
+                                                "medium_term": "<Risky/Moderate/Favorable>",
+                                                "value": "<Overvalued/Fair/Undervalued>",
+                                                "technical": "<Strong/Weak/Neutral>",
+                                                "long_term": "<Risky/Moderate/Favorable>"
+                                            }},
+                                            "detailed_analysis": {{
+                                                "risk": "<Plain text paragraph 90-120 words analyzing volatility, beta, sortino, and max drawdown>",
+                                                "fundamental": "<Plain text paragraph 90-120 words analyzing PE, PBR, ROA, NPM, cash flow, and growth metrics>",
+                                                "sentimental": "<Plain text paragraph 90-120 words analyzing Reddit sentiment across time periods>",
+                                                "technical": "<Plain text paragraph 90-120 words analyzing SMA, EMA, RSI, MACD, Bollinger Bands, ADX, and other technical indicators>",
+                                                "overall": "<Plain text paragraph 150-180 words providing comprehensive summary and investment recommendation>"
+                                            }}
+                                        }}"""
 
                     response = requests.post(
                         "https://api.groq.com/openai/v1/chat/completions",
@@ -1257,7 +1370,7 @@ if ticker:
                             "messages": [
                                 {
                                     "role": "system",
-                                    "content": "You are a professional financial analyst. Always respond with valid JSON only, no markdown formatting. Write all text in plain format without any markdown symbols like asterisks, underscores, or bold/italic formatting. Each analysis section must be between 120-160 words."
+                                    "content": "You are a professional financial analyst. Always respond with valid JSON only, no markdown formatting. Write all text in plain format without any markdown symbols like asterisks, underscores, or bold/italic formatting. Each analysis section must be between 90-120 words."
                                 },
                                 {
                                     "role": "user",
@@ -1336,11 +1449,18 @@ if ticker:
                 except Exception as e:
                     return f"Error: {e}"
 
-            analysis_col, chat_col = st.columns([1, 1], gap="large")
+            #SHORT ANALYSIS
+            with short_col:
+                st.markdown("""
+                <style>
+                    /* Reduce spacing before Analysis section */
+                    div[data-testid="column"]:has(h4:contains("Analysis")) {
+                        margin-top: -30px !important;
+                    }
+                </style>
+                """, unsafe_allow_html=True)
 
-            #ANALYSIS
-            with analysis_col:
-                st.markdown("<h4 style='text-align: center; margin-bottom: 20px; margin-top: -20px;'>Analysis</h4>", unsafe_allow_html=True)
+                st.markdown("<h4 style='text-align: center; font-size: 20px; margin-bottom: -0px; margin-top: -55px;'>Short Analysis</h4>", unsafe_allow_html=True)
 
                 stock_data_for_ai = {
                     'per': per,
@@ -1384,22 +1504,22 @@ if ticker:
                             mode="gauge+number",
                             value=rating_value,
                             domain={'x': [0, 1], 'y': [0, 1]},
-                            number={'suffix': "", 'font': {'size': 36, 'color': 'white', 'family': 'sans-serif'}, 'valueformat': '.0f'},
+                            number={'suffix': "", 'font': {'size': 27, 'color': 'white', 'family': 'sans-serif'}, 'valueformat': '.0f'},
                             gauge={
                                 'axis': {'range': [0, 100], 'tickwidth': 0, 'tickcolor': "white", 'visible': False},
-                                'bar': {'color': "#ff9500", 'thickness': 0.7},
+                                'bar': {'color': "#ff9500", 'thickness': 0.65},
                                 'bgcolor': "rgba(0,0,0,0)",
                                 'borderwidth': 0,
                                 'shape': "angular",
                                 'steps': [
-                                    {'range': [0, 100], 'color': '#2C2E35', 'thickness': 0.7}
+                                    {'range': [0, 100], 'color': '#2C2E35', 'thickness': 0.65}
                                 ]
                             }
                         ))
 
                         fig_rating.update_layout(
-                            height=150,
-                            margin=dict(l=20, r=20, t=10, b=5),
+                            height=112,
+                            margin=dict(l=15, r=15, t=7, b=4),
                             paper_bgcolor='rgba(0,0,0,0)',
                             font={'color': 'white', 'weight': 'bold'}
                         )
@@ -1414,18 +1534,18 @@ if ticker:
                             .analysis-table {{
                                 width: 100%;
                                 border-collapse: collapse;
-                                margin-top: 15px;
-                                margin-bottom: 5px;
-                                font-size: 13px;
+                                margin-top: 11px;
+                                margin-bottom: 4px;
+                                font-size: 10.5px;
                                 font-family: sans-serif;
                                 table-layout: fixed;
                             }}
                             .analysis-table td {{
                                 background-color: #1d1d1d;
                                 color: white;
-                                padding: 10px;
+                                padding: 7.5px;
                                 text-align: left;
-                                border: 2px solid #2C2E35;
+                                border: 1.5px solid #2C2E35;
                                 vertical-align: middle;
                                 width: 33.33%;
                             }}
@@ -1450,17 +1570,50 @@ if ticker:
                         """
                         st.markdown(analysis_table, unsafe_allow_html=True)
 
-                    st.markdown("<div style='margin-top: 5px;'></div>", unsafe_allow_html=True)
+                    #OVERALL
+                    detailed = ai_analysis['detailed_analysis']
+                    st.markdown(f"<p style='font-size: 12px; line-height: 1.5; margin-top: 10px; text-align: justify;'>{detailed['overall']}</p>", unsafe_allow_html=True)
 
+                else:
+                    st.warning("AI analysis unavailable. Please check your API configuration.")
+
+            #LONG ANALYSIS
+            with long_col:
+                st.markdown("<h4 style='text-align: center; font-size: 20px; margin-bottom: 19px; margin-top: -40px;'>Long Analysis</h4>", unsafe_allow_html=True)
+
+                if ai_analysis:
                     #EXPANDABLES
                     st.markdown("""
                     <style>
                         div[data-testid="stExpander"] {
                             border: 1px solid #2C2E35 !important;
-                            border-radius: 4px;
+                            border-radius: 3px !important;
+                            margin-bottom: 3px !important;
+                            overflow: hidden !important;
                         }
                         div[data-testid="stExpander"] details {
-                            border: 1px solid #2C2E35 !important;
+                            border: none !important;
+                            border-radius: 3px !important;
+                        }
+                        div[data-testid="stExpander"] summary {
+                            font-size: 13px !important;
+                            padding: 1px 8px !important;
+                            border-radius: 3px !important;
+                        }
+                        div[data-testid="stExpander"] div[role="button"] {
+                            font-size: 13px !important;
+                        }
+                        div[data-testid="stExpander"] p {
+                            font-size: 12px !important;
+                            line-height: 1.5 !important;
+                            margin: 8px 0 !important;
+                        }
+                        /* Force content inside expander to be larger */
+                        div[data-testid="stExpander"] div[data-testid="stMarkdownContainer"] p {
+                            font-size: 12px !important;
+                        }
+                        div[data-testid="stExpander"] .stMarkdown {
+                            font-size: 12px !important;
                         }
                     </style>
                     """, unsafe_allow_html=True)
@@ -1478,99 +1631,6 @@ if ticker:
 
                     with st.expander("**Technical**", expanded=False):
                         st.write(detailed['technical'])
-
-                    with st.expander("**Overall**", expanded=False):
-                        st.write(detailed['overall'])
-                else:
-                    st.warning("AI analysis unavailable. Please check your API configuration.")
-
-            #CHAT
-            with chat_col:
-                st.markdown("<h4 style='text-align: center; margin-bottom: 20px; margin-top: -20px;'>Chat</h4>", unsafe_allow_html=True)
-
-                if f'chat_history_{ticker}' not in st.session_state:
-                    st.session_state[f'chat_history_{ticker}'] = []
-
-                st.markdown("""
-                <style>
-                    .stChatFloatingInputContainer {
-                        bottom: 0px;
-                    }
-
-                    /* Style the chat messages container */
-                    div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] {
-                        max-height: 380px;
-                        overflow-y: auto;
-                    }
-                </style>
-                """, unsafe_allow_html=True)
-
-                messages_container = st.container(height=395)
-
-                with messages_container:
-                    for message in st.session_state[f'chat_history_{ticker}']:
-                        with st.chat_message(message['role'], avatar="👤" if message['role'] == 'user' else "🤖"):
-                            import html
-                            escaped_content = html.escape(message['content'])
-                            st.markdown(f"<div style='white-space: pre-wrap;'>{escaped_content}</div>", unsafe_allow_html=True)
-
-                user_question = st.chat_input("Ask a question about this stock...")
-
-                if user_question:
-                    st.session_state[f'chat_history_{ticker}'].append({
-                        'role': 'user',
-                        'content': user_question
-                    })
-
-                    context = f"""You are a financial analyst assistant. Answer questions about {ticker} stock based on the following data:
-
-                    COMPANY INFO:
-                    - Name: {info.get('shortName', 'N/A')}
-                    - Sector: {info.get('sector', 'N/A')}
-                    - Industry: {info.get('industry', 'N/A')}
-                    - Current Price: ${round(info.get('currentPrice', 0), 2)}
-                    - Target Price: ${round(info.get('targetMeanPrice', 0), 2)}
-                    - Market Cap: {human_format(info.get('marketCap'))}
-
-                    FUNDAMENTAL METRICS:
-                    - P/E Ratio: {format_metric(per)}
-                    - Price to Book: {format_metric(pbr)}
-                    - ROA: {format_metric(roa)}
-                    - Net Profit Margin: {format_metric(npm)}
-                    - Current Ratio: {format_metric(icr)}
-                    - Free Cash Flow: {human_format(fcf) if fcf != 'N/A' else 'N/A'}
-                    - Revenue Growth: {format_metric(rgr)}
-                    - Earnings Growth: {format_metric(egr)}
-
-                    RISK METRICS:
-                    - Volatility: {round(volatility_value, 2)}%
-                    - Beta: {round(beta_raw, 2)}
-                    - Sortino Ratio: {round(sortino_raw, 2)}
-                    - Max Drawdown: {round(max_drawdown, 2)}%
-
-                    TECHNICAL INDICATORS:
-                    {chr(10).join([f"- {key.replace('_', ' ').title()}: {value}" for key, value in technical_metrics_for_ai.items()])}
-
-                    SENTIMENT (Reddit {sentiment_source}):
-                    - 1 Week: {sentiment_data.get('1W', 'N/A')}/100
-                    - 1 Month: {sentiment_data.get('1M', 'N/A')}/100
-                    - 1 Year: {sentiment_data.get('1Y', 'N/A')}/100
-
-                    Provide a clear, concise answer to the user's question. Be specific and reference actual data when relevant."""
-
-                    with st.spinner("Thinking..."):
-                        assistant_response = get_chat_response(
-                            context,
-                            user_question,
-                            st.session_state[f'chat_history_{ticker}']
-                        )
-
-                        st.session_state[f'chat_history_{ticker}'].append({
-                            'role': 'assistant',
-                            'content': assistant_response
-                        })
-
-                        st.rerun()
 
     except Exception as e:
         st.error(f"Error fetching data: {e}")
