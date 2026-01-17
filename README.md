@@ -284,10 +284,3 @@ Contributions are welcome! Please:
 3. Commit your changes (`git commit -m 'Add AmazingFeature'`)
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
-
-
----
-
-**Built with ❤️ using Python, Streamlit, and AI**
-
-For questions or support, please open an issue on GitHub.
